@@ -53,7 +53,7 @@ datas = [
 from vllm_aici import VllmAici
 
 # qwen-1.5 config
-model_path = r'qwen/Qwen1___5-14B-Chat-GPTQ-Int4'
+model_path = r'qwen/Qwen1___5-14B-Chat-GPTQ-Int4'  # Your local model checkpoint path
 lora_path = None
 generation_config = {
     "stop_token_ids": [151645, 151643],
