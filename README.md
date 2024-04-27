@@ -29,7 +29,7 @@
 
 使用 qwen-1.5-14B-Chat-gptq-Int4 进行演示，继续使用上面的问题，并让模型用 `a. b. c. d. e.` 分点输出结果，输入数据为:
 
-```json
+```python
 datas = [
     {
         "messages": [
