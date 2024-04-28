@@ -15,7 +15,7 @@ generation_config = {
 }
 
 # # llama3 config
-# model_path = r'LLM-Research/Meta-Llama-3-8B-Instruct'
+# model_path = r'LLM-Research/Meta-Llama-3-8B-Instruct'  # Your local model checkpoint path
 # lora_path = None
 # generation_config = {
 #     "stop_token_ids": [128001, 128009],
@@ -54,8 +54,8 @@ datas = [
         "messages": [
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
-        "add_stop_char": ['<|aici_bos|>', '\n', '\n'],
-        "fixed_content": ['a. ', 'b. ', 'c. ']
+        "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n'],
+        "fixed_content": ['a. ', 'b. ', 'c. ', '4. ', '5. ']
     },
 ]
 

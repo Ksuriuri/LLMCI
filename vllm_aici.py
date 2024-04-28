@@ -26,7 +26,7 @@ class VllmAici:
         print('llm load time', time.perf_counter()-start_time)
 
         # Replace `_process_sequence_group_outputs` in llm_engine
-        self.llm.llm_engine._process_sequence_group_outputs = self._process_sequence_group_outputs
+        self.llm.llm_engine.output_processor._process_sequence_group_outputs = self._process_sequence_group_outputs
 
         self.add_stop_char_dict = {}
         self.fixed_content_dict = {}
@@ -105,8 +105,9 @@ class VllmAici:
                                         outputs: SequenceGroupOutput) -> None:
         # Process prompt logprobs
         prompt_logprobs = outputs.prompt_logprobs
-        if prompt_logprobs is not None:
-            self.llm.llm_engine.detokenizer.decode_prompt_logprobs_inplace(
+        if prompt_logprobs is not None and \
+            seq_group.sampling_params.detokenize and self.detokenizer:
+            self.llm.llm_engine.output_processor.detokenizer.decode_prompt_logprobs_inplace(
                 seq_group, prompt_logprobs)
             seq_group.prompt_logprobs = prompt_logprobs
 
@@ -158,11 +159,11 @@ class VllmAici:
                 # not be used in the future iterations.
                 parent.status = SequenceStatus.FINISHED_ABORTED
                 seq_group.remove(parent.seq_id)
-                self.llm.llm_engine.scheduler.free_seq(parent)
+                self.llm.llm_engine.output_processor.scheduler.free_seq(parent)
                 continue
             # Fork the parent sequence if there are multiple child samples.
             for child_sample in child_samples[:-1]:
-                new_child_seq_id = next(self.llm.llm_engine.seq_counter)
+                new_child_seq_id: int = next(self.llm.llm_engine.output_processor.seq_counter)
                 child = parent.fork(new_child_seq_id)
                 child.append_token_id(child_sample.output_token, child_sample.logprobs)
                 child_seqs.append((child, parent))
@@ -174,8 +175,13 @@ class VllmAici:
             child_seqs.append((parent, parent))
 
         for seq, _ in child_seqs:
-            self.llm.llm_engine.detokenizer.decode_sequence_inplace(seq, seq_group.sampling_params)
-            self.llm.llm_engine._check_stop(seq, seq_group.sampling_params)
+            if seq_group.sampling_params.detokenize and self.llm.llm_engine.output_processor.detokenizer:
+                new_char_count = self.llm.llm_engine.output_processor.detokenizer.decode_sequence_inplace(
+                    seq, seq_group.sampling_params)
+            else:
+                new_char_count = 0
+            self.llm.llm_engine.output_processor.stop_checker.maybe_stop_sequence(seq, new_char_count,
+                                                                                  seq_group.sampling_params)
 
         # Non-beam search case
         if not seq_group.sampling_params.use_beam_search:
@@ -188,7 +194,7 @@ class VllmAici:
                     self.fixed_content_dict[str(seq.seq_id)] = self.fixed_content_dict[str(parent.seq_id)]
                     self.aici_flag[str(seq.seq_id)] = self.aici_flag[str(parent.seq_id)]
                     if not seq.is_finished():
-                        self.llm.llm_engine.scheduler.fork_seq(parent, seq)
+                        self.llm.llm_engine.output_processor.scheduler.fork_seq(parent, seq)
 
             # Free the finished and selected parent sequences' memory in block
             # manager. Keep them in the sequence group as candidate output.
@@ -196,7 +202,7 @@ class VllmAici:
             # old sequences.
             for seq, parent in child_seqs:
                 if seq is parent and seq.is_finished():
-                    self.llm.llm_engine.scheduler.free_seq(seq)
+                    self.llm.llm_engine.output_processor.scheduler.free_seq(seq)
                     del self.add_stop_char_dict[str(seq.seq_id)]
                     del self.fixed_content_dict[str(seq.seq_id)]
                     del self.aici_flag[str(seq.seq_id)]
