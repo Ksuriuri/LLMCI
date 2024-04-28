@@ -105,7 +105,7 @@ output tokens: 148
 
 使用 `vllm_aici.py` 中的 `VllmAici` 类即可加载 vllm 支持的任意模型，模型参数设置以及数据输入格式请参考 [示例](#示例) 。更多示例详见 `vllm_aici_demo.py`
 
-**Note: 本项目开发是基于 `vllm==0.4.1` 版本，但理论上只要 vllm 库的 `llm.llm_engine._process_sequence_group_outputs` 函数没有改动便能够支持任意版本**
+**Note: 本项目开发是基于 `vllm==0.4.1` 版本，理论上只要 vllm 库的 `llm.llm_engine._process_sequence_group_outputs` 函数没有特殊改动便能够支持任意版本**
 
 ## To-Do-List
 
