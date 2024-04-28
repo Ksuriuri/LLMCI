@@ -2,7 +2,7 @@ from vllm_aici import VllmAici
 import time
 
 # qwen-1.5 config
-model_path = r'qwen/Qwen1___5-14B-Chat-GPTQ-Int4'  # Your local model checkpoint path
+model_path = r'/home/oneway/ssd2t/model/qwen/Qwen1___5-14B-Chat-GPTQ-Int4'
 lora_path = None
 generation_config = {
     "stop_token_ids": [151645, 151643],
@@ -15,7 +15,7 @@ generation_config = {
 }
 
 # # llama3 config
-# model_path = r'LLM-Research/Meta-Llama-3-8B-Instruct'
+# model_path = r'/home/oneway/ssd2t/model/LLM-Research/Meta-Llama-3-8B-Instruct'
 # lora_path = None
 # generation_config = {
 #     "stop_token_ids": [128001, 128009],
