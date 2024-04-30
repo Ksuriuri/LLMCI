@@ -47,7 +47,7 @@ datas = [
 
 在本案例中，模型的生成结果以 `a. ` 开头，然后模型继续生成，直到模型生成了包含 `\n` 的 token ，便会在生成结果中追加 `b. `，然后继续生成。当遇到最后一个 `\n` 时，在生成结果中追加 `<|im_end|>` (qwen系列的停止标识)，强迫模型结束生成。
 
-完整示例代码如下:
+**完整示例代码如下:**
 
 ```python
 from vllm_aici import VllmAici
@@ -84,7 +84,7 @@ for output in zip(*outputs):
     print(f'output tokens: {output[1]}\n')
 ```
 
-模型输出：
+**模型输出：**
 
 ```
 a. 伪装工作：假装在进行线上会议或者处理工作邮件，但实际上是在后台浏览无关紧要的网页或社交媒体。
@@ -101,9 +101,9 @@ output tokens: 148
 
 ### vllm
 
-参考 [`vllm-project/vllm`](https://github.com/vllm-project/vllm) 的文档 [`Installation`](https://docs.vllm.ai/en/latest/getting_started/installation.html) 安装vllm   
+1. 参考 [`vllm-project/vllm`](https://github.com/vllm-project/vllm) 的文档 [`Installation`](https://docs.vllm.ai/en/latest/getting_started/installation.html) 安装vllm   
 
-使用 `vllm_aici.py` 中的 `VllmAici` 类即可加载 vllm 支持的任意模型，模型参数设置以及数据输入格式请参考 [示例](#示例) 。更多示例详见 `vllm_aici_demo.py`
+2. 使用 `vllm_aici.py` 中的 `VllmAici` 类即可加载 vllm 支持的任意模型，模型参数设置以及数据输入格式请参考 [示例](#示例) 。更多示例详见 `vllm_aici_demo.py`
 
 #### Note:
 
@@ -113,9 +113,9 @@ output tokens: 148
 
 ### transformers
 
-目前支持 `tansformers>=4.38.0` 的版本 (2024/04/30)
+1. 目前支持 `tansformers>=4.38.0` 的版本 (2024/04/30)
 
-使用 `transformers_aici.py` 中的 `TransformersAici` 类即可加载 tansformers 支持的任意模型，模型参数设置以及数据输入格式详见 `transformers_aici_demo.py`
+2. 使用 `transformers_aici.py` 中的 `TransformersAici` 类即可加载 tansformers 支持的任意模型，模型参数设置以及数据输入格式详见 `transformers_aici_demo.py`
 
 #### Note:
 
