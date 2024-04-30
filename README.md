@@ -1,6 +1,6 @@
 # Simple Artificial Intelligence Controller Interface (SimpleAICI)
 
-参考 [`microsoft/aici`](https://github.com/microsoft/aici)，以简洁易使用的方式实现大语言模型可控生成，能够通过额外的控制信息精确控制模型的生成格式。目前支持 vllm 。
+参考 [`microsoft/aici`](https://github.com/microsoft/aici)，以简洁易使用的方式实现大语言模型可控生成，能够通过额外的控制信息精确控制模型的生成格式。目前支持 `vllm`, `transformers` 库 。
 
 ## 简介
 
@@ -53,7 +53,7 @@ datas = [
 from vllm_aici import VllmAici
 
 # qwen-1.5 config
-model_path = r'qwen/Qwen1___5-14B-Chat-GPTQ-Int4'  # Your local model checkpoint path
+model_path = r'Qwen/Qwen1.5-14B-Chat-GPTQ-Int4'
 lora_path = None
 generation_config = {
     "stop_token_ids": [151645, 151643],
@@ -107,17 +107,28 @@ output tokens: 148
 
 #### Note:
 
-- 本项目开发是基于 `vllm==0.4.1` 版本，理论上只要 vllm 库的 `llm.llm_engine.output_processor` 的 `_process_sequence_group_outputs` 函数没有特殊改动便能够支持 `vllm>=0.4.1` 的任意版本
+- vllm 的 aici 开发是基于 `vllm==0.4.1` 版本，但理论上只要 vllm 库的 `llm.llm_engine.output_processor` 的 `_process_sequence_group_outputs` 函数没有特殊改动便能够支持 `vllm>=0.4.1` 的任意版本
 
 - 目前不支持 `beam_search`
 
 ### transformers
 
-更新中。。。
+目前支持 `tansformers>=4.38.0` 的版本 (2024/04/30)
+
+使用 `transformers_aici.py` 中的 `TransformersAici` 类即可加载 tansformers 支持的任意模型，模型参数设置以及数据输入格式详见 `transformers_aici_demo.py`
+
+#### Note:
+
+- tansformers 的 aici 开发是基于 `tansformers` 的 `4.38.0` 以及 `4.40.1` 版本
+
+- 目前仅支持 `sample` 方法
 
 ## To-Do-List
 
 - [ ] 支持 vllm 的 Beam search case 的格式控制
-- [ ] 支持 transformers 的 aici
+- [x] 支持 transformers 的 aici（仅 sample 方法）
+- [ ] 支持 transformers 除 sample 外其他方法的 aici （有生之年系列）
+- [ ] 跟进 transformers 以及 vllm 库的更新（估计不会，毕竟应该没什么人用 0.0）
+- [ ] 同步一个英文版 README
 
 

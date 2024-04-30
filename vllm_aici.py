@@ -67,35 +67,33 @@ class VllmAici:
             )
             texts.append(text)
 
+            # Check aici input in data
+            data['add_stop_char'] = data['add_stop_char'] if 'add_stop_char' in data else []
+            data['fixed_content'] = data['fixed_content'] if 'fixed_content' in data else []
+            assert isinstance(data['add_stop_char'], list) and isinstance(data['fixed_content'], list), "`add_stop_char` and `fixed_content` must in list type"
+            assert len(data['add_stop_char']) == len(data['fixed_content']), "len of `add_stop_char` and `fixed_content` are not equal"
+
+            # In case that add tokens at beggining
+            outputs_aici_bos.append("")
+            if data['add_stop_char'] and data['add_stop_char'][0] == '<|aici_bos|>':
+                texts[-1] += data['fixed_content'][0]
+                outputs_aici_bos[-1] += data['fixed_content'][0]
+                data['add_stop_char'].pop(0)
+                data['fixed_content'].pop(0)
+
+            # Prepare aici dict
             # Since `Sequences` are created in order in vllm, `Sequence.seq_id` increments sequentially. 
             # Therefore, using current seq_id + data index (idx) should correspond to Sequence.seq_id.
             str_idx = str(seq_id+idx)
-            # Prepare aici dict
-            outputs_aici_bos.append("")
-            if 'add_stop_char' in data and 'fixed_content' in data:
-                assert isinstance(data['add_stop_char'], list) and isinstance(data['fixed_content'], list), "`add_stop_char` and `fixed_content` must in list type"
-                assert len(data['add_stop_char']) == len(data['fixed_content']), "len of `add_stop_char` and `fixed_content` are not equal"
-                assert len(data['add_stop_char']) and len(data['fixed_content']), "len of `add_stop_char` and `fixed_content` must > 0"
-                if data['add_stop_char'][0] == '<|aici_bos|>':
-                    texts[-1] += data['fixed_content'][0]
-                    outputs_aici_bos[-1] += data['fixed_content'][0]
-                    data['add_stop_char'].pop(0)
-                    data['fixed_content'].pop(0)
-                self.add_stop_char_dict[str_idx] = data['add_stop_char']
-                self.fixed_content_dict[str_idx] = [self.tokenizer.encode(str) for str in data['fixed_content']]
-            else:
-                self.add_stop_char_dict[str_idx] = []
-                self.fixed_content_dict[str_idx] = []
+            self.add_stop_char_dict[str_idx] = data['add_stop_char']
+            self.fixed_content_dict[str_idx] = [self.tokenizer.encode(str_) for str_ in data['fixed_content']] if data['fixed_content'] else []
             self.aici_flag[str_idx] = False
 
         # Inference
-        start_time = time.perf_counter()
-        print(texts)
         if self.lora_path:
             outputs = self.llm.generate(texts, self.sampling_params, lora_request=LoRARequest("adapter", 1, self.lora_path))
         else:
             outputs = self.llm.generate(texts, self.sampling_params)
-        print('batch use time', time.perf_counter()-start_time)
         
         outputs_text = [output_aici_bos + output.outputs[0].text for output, output_aici_bos in zip(outputs, outputs_aici_bos)]
         output_token_nums = [len(output.outputs[0].token_ids) for output in outputs]
