@@ -9,11 +9,13 @@ model = TransformersAici(tokenizers_path, model_path, 512)
 datas = [
     {
         "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法，仅返回一个列表，不要有多余的解释"}
         ]
     },
     {
         "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
         "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
@@ -21,6 +23,7 @@ datas = [
     },
     {
         "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
         "add_stop_char": ['<|aici_bos|>'],
@@ -28,6 +31,7 @@ datas = [
     },
     {
         "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
         "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n'],
