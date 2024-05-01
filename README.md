@@ -22,7 +22,7 @@
 
 1. 防止模型在开头添加解释
 2. 控制表单的格式（如：1. 2. 3. 或 i. ii. iii. 或 a. b. c. ）
-3. 限制模型返回的表单的条数
+3. 控制模型返回的表单的条数
 4. 防止模型在结尾添加解释
 
 ## 示例
@@ -128,7 +128,7 @@ output tokens: 148
 - [ ] 支持 vllm 的 Beam search case 的格式控制
 - [x] 支持 transformers 的 aici（仅 sample 方法）
 - [ ] 支持 transformers 除 sample 外其他方法的 aici （有生之年系列）
-- [ ] 跟进 transformers 以及 vllm 库的更新（估计不会，毕竟应该没什么人用 0.0）
+- [ ] 跟进 transformers 以及 vllm 库的更新（如果有人用的话 0.0）
 - [ ] 同步一个英文版 README
 
 
