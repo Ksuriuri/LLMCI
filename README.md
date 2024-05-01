@@ -128,7 +128,7 @@ output tokens: 148
 - [ ] 支持 vllm 的 Beam search case 的格式控制
 - [x] 支持 transformers 的 aici（仅 sample 方法）
 - [ ] 支持 transformers 除 sample 外其他方法的 aici （有生之年系列）
-- [ ] 跟进 transformers 以及 vllm 库的更新（如果有人用的话 0.0）
+- [ ] 跟进 transformers 以及 vllm 库的更新（如果有人需要的话 0.0）
 - [ ] 同步一个英文版 README
 
 
