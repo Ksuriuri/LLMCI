@@ -27,7 +27,7 @@ generation_config = {
 #     "use_beam_search": False,
 # }
 
-model = VllmAici(model_path, model_path, generation_config, lora_path, gpu_memory_utilization=0.80)
+model = VllmAici(model_path, model_path, generation_config, lora_path, gpu_memory_utilization=0.90)
 
 # Test data
 datas = [
@@ -65,7 +65,7 @@ datas = [
 
 # # Speed test data
 # batch_size = 1
-# data = [
+# datas = [
 #     {"messages": [{"role": "user", "content": "请写一遍5000字的综述，介绍开源的搜索引擎项目"}]} for _ in range(batch_size)
 # ]
 
@@ -80,11 +80,20 @@ for output in zip(*outputs):
 print(f'total tokens: {total_token}, {total_token / (time.perf_counter()-start_time)} token/s')
 print('batch use time', time.perf_counter()-start_time)
 
+
 ########################### Speed test result ###########################
-# GPU: 4090, gpu_memory_utilization: 0.65
-# batch = 1: 91 token/s
-# batch = 2: 166 token/s
-# batch = 4: 306 token/s
-# batch = 8: 491 token/s
-# batch = 16: 643 token/s
-# batch = 32: 656 token/s
+# GPU: 4090, model: Qwen1.5-14B-Chat-GPTQ-Int4, gpu_memory_utilization: 0.65
+# batch_size = 1: 91 token/s
+# batch_size = 2: 166 token/s
+# batch_size = 4: 306 token/s
+# batch_size = 8: 491 token/s
+# batch_size = 16: 643 token/s
+# batch_size = 32: 656 token/s
+
+# GPU: 4090, model: Qwen1.5-14B-Chat-GPTQ-Int4, gpu_memory_utilization: 0.90
+# batch_size = 1: 90.12 token/s
+# batch_size = 2: 161.95 token/s
+# batch_size = 4: 286.08 token/s
+# batch_size = 8: 489.08 token/s
+# batch_size = 16: 731.20 token/s
+# batch_size = 32: 771.21 token/s
