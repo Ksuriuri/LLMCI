@@ -1,3 +1,5 @@
+[English](README_en.md) | [中文](README.md) 
+
 # Simple Artificial Intelligence Controller Interface (SimpleAICI)
 
 参考 [`microsoft/aici`](https://github.com/microsoft/aici)，以简洁易使用的方式实现大语言模型可控生成，能够通过额外的控制信息精确控制模型的生成格式。目前支持 `vllm`, `transformers` 库 。
@@ -27,7 +29,7 @@
 
 ## 示例
 
-使用 qwen-1.5-14B-Chat-gptq-Int4 进行演示，继续使用上面的问题，并让模型用 `a. b. c. d. e.` 分点输出结果，输入数据为:
+使用 `qwen-1.5-14B-Chat-gptq-Int4` 进行演示，继续使用上面的问题，并让模型用 `a. b. c. d. e.` 分点输出结果，输入数据为:
 
 ```python
 datas = [
@@ -95,7 +97,7 @@ e. 模拟高效：使用番茄工作法或其他时间管理技巧，看似在�
 output tokens: 148
 ```
 
-结果生成了5条方法建议，符合预期
+结果生成了5条方法建议，符合要求
 
 ## 使用
 
