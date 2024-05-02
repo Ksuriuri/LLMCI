@@ -55,15 +55,15 @@ datas = [
 ```python
 from vllm_aici import VllmAici
 
-# qwen-1.5 config
-model_path = r'Qwen/Qwen1.5-14B-Chat-GPTQ-Int4'
+# llama3 config
+model_path = r'meta-llama/Meta-Llama-3-8B-Instruct'
 lora_path = None
 generation_config = {
-    "stop_token_ids": [151645, 151643],
+    "stop_token_ids": [128001, 128009],
     "max_tokens": 1024,
-    "top_p": 0.8,
+    "top_p": 0.6,
     "top_k": 20,
-    "temperature": 0.95,  # 0.95
+    "temperature": 0.6,
     "repetition_penalty": 1.05,
     "use_beam_search": False,
 }
@@ -73,10 +73,10 @@ model = VllmAici(model_path, model_path, generation_config, lora_path, gpu_memor
 datas = [
     {
         "messages": [
-            {"role": "user", "content": "请列举五个摸鱼方法"}
+            {"role": "user", "content": "Top 5 ways to pretend to work"}
         ],
         "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
-        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|im_end|>']
+        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|end_of_text|>']
     }
 ]
 
