@@ -43,11 +43,11 @@ datas = [
 ]
 ```
 
-其中，`messages` 对标 OpenAI 的对话模板，填写提示词或者对话记录。  
+其中，`messages` 对标 OpenAI 的对话模板，填写由 `system`, `user`, `assistant` 组成的对话记录。  
 
-`add_stop_char` 为匹配字符，若模型新生成的 token 中包含 `add_stop_char` 中的第0个元素 (`add_stop_char[0]`)，则将 `fixed_content` 第0个元素 (`fixed_content[0]`)中的内容填充到当前生成结果中，然后删除 `add_stop_char` 与 `fixed_content` 中的第0个元素。`<|aici_bos|>`是本项目的一个特殊标记符，用作开头便要添加内容的情况。  
+`add_stop_char` 为停止符列表。在模型生成过程中，当 `add_stop_char` 不为空时，若模型新生成的 token 经过解码后包含 `add_stop_char[0]`，则将 `fixed_content[0]` 中的内容填充到当前生成结果中，然后删除 `add_stop_char[0]` 与 `fixed_content[0]`。`<|aici_bos|>` 是本项目的一个特殊标记符，用作开头便要添加内容的情况。  
 
-在本案例中，模型的生成结果以 `a. ` 开头，然后模型继续生成，直到模型生成了包含 `\n` 的 token ，便会在生成结果中追加 `b. `，然后继续生成。当遇到最后一个 `\n` 时，在生成结果中追加 `<|im_end|>` (qwen系列的停止标识)，强迫模型结束生成。
+在本案例中，由于 `add_stop_char[0]` 为 `<|aici_bos|>`，因此模型的生成以 `a. ` 开头，然后模型继续生成，直到生成了包含 `\n` 的 token，便会在生成结果中追加 `b. `，然后继续生成。当遇到最后一个 `\n` 时，在生成结果中追加 `<|im_end|>` (qwen系列的停止标识)，强迫模型结束生成。
 
 **完整示例代码如下:**
 

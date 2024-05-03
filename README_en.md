@@ -44,13 +44,13 @@ datas = [
 ]
 ```
 
-其中，`messages` 对标 OpenAI 的对话模板，填写提示词或者对话记录。  
+`messages` corresponds to OpenAI's conversation template, which is filled with chat history consisting of `system`, `user`, and `assistant` roles.
 
-`add_stop_char` 为匹配字符，若模型新生成的 token 中包含 `add_stop_char` 中的第0个元素 (`add_stop_char[0]`)，则将 `fixed_content` 第0个元素 (`fixed_content[0]`)中的内容填充到当前生成结果中，然后删除 `add_stop_char` 与 `fixed_content` 中的第0个元素。`<|aici_bos|>`是本项目的一个特殊标记符，用作开头便要添加内容的情况。  
+`add_stop_char` is a list of stop characters. During model generation, if `add_stop_char` is not empty and the newly generated token contains `add_stop_char[0]` after decoding, the content of `fixed_content[0]` is inserted into the current generated output, and then `add_stop_char[0]` and `fixed_content[0]` are both removed. `<| aici'bos |>` is a special marker used in this project for situations where content needs to be added at the beginning.
 
-在本案例中，模型的生成结果以 `a. ` 开头，然后模型继续生成，直到模型生成了包含 `\n` 的 token ，便会在生成结果中追加 `b. `，然后继续生成。当遇到最后一个 `\n` 时，在生成结果中追加 `<|end_of_text|>` (llama3的停止标识)，强迫模型结束生成。
+In this case, since `add_stop_char[0]` is `<|aici_bos|>`, the model's generation starts with `a. `, and then continues generating until it produces a token containing `\n`, at which point it appends `b. ` to the output and continues generating. When it encounters the last `\n`, `<|end_of_text|>` (Llama3's stop token) is appended to the generated text, forcing the model to stop generating.
 
-**完整示例代码如下:**
+**The complete example code is as follows:**
 
 ```python
 from vllm_aici import VllmAici
@@ -87,7 +87,7 @@ for output in zip(*outputs):
     print(f'output tokens: {output[1]}\n')
 ```
 
-**模型输出：**
+**Model outputs：**
 
 ```
 a.  **The "I'm on a Conference Call" Technique**: Pretend to be on an important conference call by putting your phone on speakerphone and having a fake conversation with someone. You can even use a voice recorder to play back a pre-recorded conversation if you're feeling extra lazy.
@@ -104,9 +104,9 @@ e.  **The "I'm Taking a Break" Technique**: Claim you need to take a break to re
 output tokens: 328
 ```
 
-结果生成了5条方法建议，符合预期
+The model generated 5 suggestions, meeting the requirements.
 
-## 使用
+## Usage
 
 ### vllm
 
