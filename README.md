@@ -1,68 +1,69 @@
-[English](README_en.md) | [中文](README.md) 
+[English](README.md) | [中文](README_zh.md) 
 
 # Simple Artificial Intelligence Controller Interface (SimpleAICI)
 
-参考 [`microsoft/aici`](https://github.com/microsoft/aici)，以简洁易使用的方式实现大语言模型可控生成，能够通过额外的控制信息精确控制模型的生成格式。目前支持 `vllm`, `transformers` 库 。
+Referring to [`microsoft/aici`](https://github.com/microsoft/aici), a simple and user-friendly implementation of controllable generation of large language models, enabling precise control over the model's output format through additional control information. Currently support `vllm` and `transformers` libraries.
 
-## 简介
+## Introduction
 
-假设我们要让大语言模型生成一个表单，遵循特定的格式，并且只包含五个元素，例如：
-
-```
-请列举五个摸鱼的方法
-```
-
-通常，需要使用额外的提示词来限制生成的格式：
+Suppose we aim for a model to generate a list, adhering to a specific format and containing only five items.
 
 ```
-请列举五个摸鱼方法，仅返回一个列表，不要有多余的解释
+Top 5 ways to pretend to work
 ```
 
-然而，大语言模型通常难以稳定地按照提示词的要求生成特定格式的文本，并且提示词可能也会因使用的模型而异，因为每个模型都倾向于以不同的格式输出以及有不同的解释说明。虽然使用 few-shot 通常能解决这个问题，但是 few-shot 会在一定程度上影响模型的输出结果，并且也大幅增加了提示词的长度。
+Typically, additional prompts are needed to limit the generated format：
 
-本项目通过在模型生成的过程中动态地插入关键的格式信息，有效地控制模型的输出格式，具体有以下功能：
+```
+Top 5 ways to pretend to work.
+Return the result as a numbered list.
+Do not add explanations, only the list.
+```
+However, LLM often struggle to consistently generate text in a specific format as required by the prompts, and the prompt would also vary depending on the model in use, given that each model tends to add explanations and understands instructions in different ways. Although few-shot learning can typically resolve this issue, it can affect the model's output results and also increase the length of the prompts.
 
-1. 防止模型在开头添加解释
-2. 控制表单的格式（如：1. 2. 3. 或 i. ii. iii. 或 a. b. c. ）
-3. 控制模型返回的表单的条数
-4. 防止模型在结尾添加解释
+This project effectively controls the output format of the model by dynamically inserting key formatting information during the model generation process. Specifically:
 
-## 示例
+1. Prevent the model from adding some initial explanation
+2. Control the format of list (e.g. 1. 2. 3. or i. ii. iii. or a. b. c.)
+3. Limit the number of list items
+4. Stop the model from adding some text after the list.
 
-使用 `qwen-1.5-14B-Chat-gptq-Int4` 进行演示，继续使用上面的问题，并让模型用 `a. b. c. d. e.` 分点输出结果，输入数据为:
+## Example
+
+Using `Meta-Llama-3-8B-Instruct` for demonstration, continue with the previous question and instruct the model to output the results in a numbered list format using `a. b. c. d. e.` . The input data is:
 
 ```python
 datas = [
     {
         "messages": [
-            {"role": "user", "content": "请列举五个摸鱼方法"}
+            {"role": "user", "content": "Top 5 ways to pretend to work"}
         ],
         "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
-        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|im_end|>']
+        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|end_of_text|>']
     }
 ]
 ```
 
-其中，`messages` 对标 OpenAI 的对话模板，填写由 `system`, `user`, `assistant` 组成的对话记录。  
+`messages` corresponds to OpenAI's conversation template, which is filled with chat history consisting of `system`, `user`, and `assistant` roles.
 
-`add_stop_char` 为停止符列表。在模型生成过程中，当 `add_stop_char` 不为空时，若模型新生成的 token 经过解码后包含 `add_stop_char[0]`，则将 `fixed_content[0]` 中的内容填充到当前生成结果中，然后删除 `add_stop_char[0]` 与 `fixed_content[0]`。`<|aici_bos|>` 是本项目的一个特殊标记符，用作开头便要添加内容的情况。  
+`add_stop_char` is a list of stop characters. During model generation, if `add_stop_char` is not empty and the newly generated token contains `add_stop_char[0]` after decoding, the content of `fixed_content[0]` is inserted into the current generated output, and then `add_stop_char[0]` and `fixed_content[0]` are both removed. `<| aici'bos |>` is a special marker used in this project for situations where content needs to be added at the beginning.
 
-在本案例中，由于 `add_stop_char[0]` 为 `<|aici_bos|>`，因此模型的生成以 `a. ` 开头，然后模型继续生成，直到生成了包含 `\n` 的 token，便会在生成结果中追加 `b. `，然后继续生成。当遇到最后一个 `\n` 时，在生成结果中追加 `<|im_end|>` (qwen系列的停止标识)，强迫模型结束生成。
+In this case, since `add_stop_char[0]` is `<|aici_bos|>`, the model's generation starts with `a. `, and then continues generating until it produces a token containing `\n`, at which point it appends `b. ` to the output and continues generating. When it encounters the last `\n`, `<|end_of_text|>` (Llama3's stop token) is appended to the generated text, forcing the model to stop generating.
 
-**完整示例代码如下:**
+**The complete example code is as follows:**
 
 ```python
 from vllm_aici import VllmAici
 
-# qwen-1.5 config
-model_path = r'Qwen/Qwen1.5-14B-Chat-GPTQ-Int4'
+# llama3 config
+model_path = r'meta-llama/Meta-Llama-3-8B-Instruct'
 lora_path = None
 generation_config = {
-    "stop_token_ids": [151645, 151643],
+    "stop_token_ids": [128001, 128009],
     "max_tokens": 1024,
-    "top_p": 0.8,
+    "top_p": 0.6,
     "top_k": 20,
-    "temperature": 0.95,  # 0.95
+    "temperature": 0.6,
     "repetition_penalty": 1.05,
     "use_beam_search": False,
 }
@@ -72,10 +73,10 @@ model = VllmAici(model_path, model_path, generation_config, lora_path, gpu_memor
 datas = [
     {
         "messages": [
-            {"role": "user", "content": "请列举五个摸鱼方法"}
+            {"role": "user", "content": "Top 5 ways to pretend to work"}
         ],
         "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
-        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|im_end|>']
+        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|end_of_text|>']
     }
 ]
 
@@ -86,51 +87,57 @@ for output in zip(*outputs):
     print(f'output tokens: {output[1]}\n')
 ```
 
-**模型输出：**
+**Model outputs：**
 
 ```
-a. 伪装工作：假装在进行线上会议或者处理工作邮件，但实际上是在后台浏览无关紧要的网页或社交媒体。
-b. 创造虚拟任务：将一些非紧急或不重要的事情标记为优先级高的任务，以制造忙碌的假象。
-c. 长时间短暂休息：频繁使用休息、喝水或上厕所等借口离开座位，降低实际工作时间。
-d. 分散注意力：参与看似与工作相关的讨论或活动，实则消耗时间，例如闲聊、玩桌游或组织小型团建活动。
-e. 模拟高效：使用番茄工作法或其他时间管理技巧，看似在集中工作，实际上利用间隙偷偷休息或处理私事。
-output tokens: 148
+a.  **The "I'm on a Conference Call" Technique**: Pretend to be on an important conference call by putting your phone on speakerphone and having a fake conversation with someone. You can even use a voice recorder to play back a pre-recorded conversation if you're feeling extra lazy.
+
+b.  **The "I'm in a Meeting" Method**: Claim you're in a meeting by closing your door, turning off your phone's notifications, and pretending to take notes or discuss important topics with an imaginary colleague. You can even set a timer to remind yourself when the "meeting" is over.
+
+c.  **The "I'm Doing Research" Ruse**: Tell your boss or colleagues that you're doing research for a project, but actually spend your time browsing social media, watching cat videos, or playing online games. You can even print out some random articles or papers to make it look like you're actually working.
+
+d.  **The "I'm Trying to Fix This Technical Issue" Excuse**: Pretend that your computer or software is malfunctioning and claim you're trying to troubleshoot the problem. You can even leave your computer screen open to a fake error message or a "loading" screen to make it look like you're actually trying to fix something.
+
+e.  **The "I'm Taking a Break" Technique**: Claim you need to take a break to recharge and come back to your work refreshed. You can even set a timer to remind yourself when your "break" is over. Just make sure not to get too comfortable, or you might find yourself taking a longer break than intended!
+
+
+output tokens: 328
 ```
 
-结果生成了5条方法建议，符合要求
+The model generated 5 suggestions, meeting the requirements.
 
-## 使用
+## Usage
 
 ### vllm
 
-1. 参考 [`vllm-project/vllm`](https://github.com/vllm-project/vllm) 的文档 [`Installation`](https://docs.vllm.ai/en/latest/getting_started/installation.html) 安装vllm   
+1. Refer to the [`Installation`](https://docs.vllm.ai/en/latest/getting_started/installation.html) of [`vllm-project/vllm`](https://github.com/vllm-project/vllm) to install vllm
 
-2. 使用 `vllm_aici.py` 中的 `VllmAici` 类即可加载 vllm 支持的任意模型，模型参数设置以及数据输入格式请参考 [示例](#示例) 。更多示例详见 `vllm_aici_demo.py`
+2. Any model supported by vllm can be loaded by using the `VllmAici` class in `vllm_aici.py`. For model parameter settings and data input formats, please refer to [Example](#example). For more examples, please refer to `vllm_aici_demo.py`.
 
 #### Note:
 
-- vllm 的 aici 开发是基于 `vllm==0.4.1` 版本，但理论上只要 vllm 库的 `llm.llm_engine.output_processor` 的 `_process_sequence_group_outputs` 函数没有特殊改动便能够支持 `vllm>=0.4.1` 的任意版本
+- The vllm aici development is based on `vllm==0.4.1`. I just replaced the `_process_sequence_group_outputs` function of `llm.llm_engine.output_processor`
 
-- 目前不支持 `beam_search`
+- Currently not supported for `beam_search`
 
 ### transformers
 
-1. 目前支持 `tansformers>=4.38.0` 的版本 (2024/04/30)
+1. Currently supports `transformers>=4.38.0` (2024/04/30)
 
-2. 使用 `transformers_aici.py` 中的 `TransformersAici` 类即可加载 tansformers 支持的任意模型，模型参数设置以及数据输入格式详见 `transformers_aici_demo.py`
+2. Any model supported by transformers can be loaded by using the `TransformersAici` class in `transformers_aici.py`. For model parameter settings and data input formats, please refer to `transformers_aici_demo.py`.
 
 #### Note:
 
-- tansformers 的 aici 开发是基于 `tansformers` 的 `4.38.0` 以及 `4.40.1` 版本
+- The transformers aici development is based on `transformers==4.38.0` and `4.40.1`
 
-- 目前仅支持 `sample` 方法
+- Currently, only the `sample` method is supported
 
 ## To-Do-List
 
-- [ ] 支持 vllm 的 Beam search case 的格式控制
-- [x] 支持 transformers 的 aici（仅 sample 方法）
-- [ ] 支持 transformers 除 sample 外其他方法的 aici （有生之年系列）
-- [ ] 跟进 transformers 以及 vllm 库的更新（如果有人需要的话 0.0）
-- [ ] 同步一个英文版 README
+- [ ] Format control of Beam search case in vllm
+- [x] AICI in transformers (sample method only)
+- [ ] AICI in transformers except sample (May be)
+- [ ] Follow updates on the transformers and vllm（If someone needs 0.0）
+- [x] `README.md` in Chinese and English
 
 
