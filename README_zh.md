@@ -1,6 +1,6 @@
 [English](README.md) | [中文](README_zh.md) 
 
-# Simple Artificial Intelligence Controller Interface (SimpleAICI)
+# Large Language Model Controller Interface (LLMCI)
 
 参考 [`microsoft/aici`](https://github.com/microsoft/aici)，以简洁易使用的方式实现大语言模型可控生成，能够通过额外的控制信息精确控制模型的生成格式。目前支持 `vllm`, `transformers` 库 。
 
@@ -109,7 +109,7 @@ output tokens: 148
 
 #### Note:
 
-- vllm 的 aici 开发是基于 `vllm==0.4.1` 版本，我仅替换了 `llm.llm_engine.output_processor` 的 `_process_sequence_group_outputs` 函数
+- vllm 的开发是基于 `vllm==0.4.1` 版本，我仅替换了 `llm.llm_engine.output_processor` 的 `_process_sequence_group_outputs` 函数
 
 - 目前不支持 `beam_search`
 
@@ -121,15 +121,15 @@ output tokens: 148
 
 #### Note:
 
-- transformers 的 aici 开发是基于 `transformers` 的 `4.38.0` 以及 `4.40.1` 版本
+- transformers 的开发是基于 `transformers` 的 `4.38.0` 以及 `4.40.1` 版本
 
 - 目前仅支持 `sample` 方法
 
 ## To-Do-List
 
 - [ ] 支持 vllm 的 Beam search case 的格式控制
-- [x] 支持 transformers 的 aici（仅 sample 方法）
-- [ ] 支持 transformers 除 sample 外其他方法的 aici （有生之年系列）
+- [x] 支持 transformers 的 LLMCI（仅 sample 方法）
+- [ ] 支持 transformers 除 sample 外其他方法的 LLMCI（有生之年系列）
 - [ ] 跟进 transformers 以及 vllm 库的更新（如果有人需要的话 0.0）
 - [x] 同步一个英文版 README
 

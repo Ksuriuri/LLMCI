@@ -1,6 +1,6 @@
 [English](README.md) | [中文](README_zh.md) 
 
-# Simple Artificial Intelligence Controller Interface (SimpleAICI)
+# Large Language Model Controller Interface (LLMCI)
 
 Referring to [`microsoft/aici`](https://github.com/microsoft/aici), a simple and user-friendly implementation of controllable generation of large language models, enabling precise control over the model's output format through additional control information. Currently support `vllm` and `transformers` libraries.
 
@@ -116,7 +116,7 @@ The model generated 5 suggestions, meeting the requirements.
 
 #### Note:
 
-- The vllm aici development is based on `vllm==0.4.1`. I just replaced the `_process_sequence_group_outputs` function of `llm.llm_engine.output_processor`
+- The vllm development is based on `vllm==0.4.1`. I just replaced the `_process_sequence_group_outputs` function of `llm.llm_engine.output_processor`
 
 - Currently not supported for `beam_search`
 
@@ -128,15 +128,15 @@ The model generated 5 suggestions, meeting the requirements.
 
 #### Note:
 
-- The transformers aici development is based on `transformers==4.38.0` and `4.40.1`
+- The transformers development is based on `transformers==4.38.0` and `4.40.1`
 
 - Currently, only the `sample` method is supported
 
 ## To-Do-List
 
 - [ ] Format control of Beam search case in vllm
-- [x] AICI in transformers (sample method only)
-- [ ] AICI in transformers except sample (May be)
+- [x] LLMCI in transformers (sample method only)
+- [ ] LLMCI in transformers except sample (May be)
 - [ ] Follow updates on the transformers and vllm（If someone needs 0.0）
 - [x] `README.md` in Chinese and English
 
