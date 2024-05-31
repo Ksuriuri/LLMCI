@@ -46,7 +46,7 @@ from transformers.generation.utils import (
 from transformers.generation.streamers import BaseStreamer
 
 
-class TransformersAici:
+class TransformersLLMci:
     def __init__(self, tokenizers_path, model_path, max_new_tokens):
         self.device = "cuda"
         self.max_new_tokens = max_new_tokens
@@ -59,14 +59,14 @@ class TransformersAici:
 
         self.add_stop_char_list = []
         self.fixed_content_list = []
-        self.aici_flag = []
+        self.llmci_flag = []
 
     def generate(self, datas):
-        # Empty aici dict
+        # Empty llmci dict
         self.add_stop_char_list = []
         self.fixed_content_list = []
-        self.aici_flag = []
-        outputs_aici_bos = []  # this list is for tokens that add to the beginning
+        self.llmci_flag = []
+        outputs_llmci_bos = []  # this list is for tokens that add to the beginning
 
         texts = []
         for data in datas:
@@ -78,26 +78,26 @@ class TransformersAici:
             )
             texts.append(text)
 
-            # Check aici input in data
+            # Check llmci input in data
             data['add_stop_char'] = data['add_stop_char'] if 'add_stop_char' in data else []
             data['fixed_content'] = data['fixed_content'] if 'fixed_content' in data else []
             assert isinstance(data['add_stop_char'], list) and isinstance(data['fixed_content'], list), "`add_stop_char` and `fixed_content` must in list type"
             assert len(data['add_stop_char']) == len(data['fixed_content']), "len of `add_stop_char` and `fixed_content` are not equal"
 
             # In case that add tokens at beggining
-            outputs_aici_bos.append("")
-            if data['add_stop_char'] and data['add_stop_char'][0] == '<|aici_bos|>':
+            outputs_llmci_bos.append("")
+            if data['add_stop_char'] and data['add_stop_char'][0] == '<|llmci_bos|>':
                 texts[-1] += data['fixed_content'][0]
-                outputs_aici_bos[-1] += data['fixed_content'][0]
+                outputs_llmci_bos[-1] += data['fixed_content'][0]
                 data['add_stop_char'].pop(0)
                 data['fixed_content'].pop(0)
 
-            # Prepare aici dict
+            # Prepare llmci dict
             self.add_stop_char_list.append(data["add_stop_char"])
             self.fixed_content_list.append(
                 [torch.tensor(self.tokenizer.encode(str_), dtype=torch.long, device=self.device) 
                  for str_ in data["fixed_content"]] if data["fixed_content"] else [])
-            self.aici_flag.append(False)
+            self.llmci_flag.append(False)
 
         model_inputs = self.tokenizer(texts, return_tensors="pt", padding=True).to(self.device)
 
@@ -124,7 +124,7 @@ class TransformersAici:
             output_tokens_num = [0 for _ in range(len(generated_ids))]
 
         output_texts = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
-        output_texts = [output_aici_bos + output_text for output_aici_bos, output_text in zip(outputs_aici_bos, output_texts)]
+        output_texts = [output_llmci_bos + output_text for output_llmci_bos, output_text in zip(outputs_llmci_bos, output_texts)]
         return output_texts, output_tokens_num
 
     def _sample(
@@ -265,21 +265,21 @@ class TransformersAici:
                     raise ValueError("If `eos_token_id` is defined, make sure that `pad_token_id` is defined.")
                 next_tokens = next_tokens * unfinished_sequences + pad_token_id * (1 - unfinished_sequences)
 
-            # aici replacement
+            # llmci replacement
             for idx, fixed_content in enumerate(self.fixed_content_list):
-                if self.aici_flag[idx]:
+                if self.llmci_flag[idx]:
                     next_tokens[idx] = fixed_content[0][0]
                     self.fixed_content_list[idx][0] = fixed_content[0][1:]
                     if not self.fixed_content_list[idx][0].shape[0]:
                         self.fixed_content_list[idx].pop(0)
                         self.add_stop_char_list[idx].pop(0)
-                        self.aici_flag[idx] = False
+                        self.llmci_flag[idx] = False
 
-            # aici judge: if encounter stop character
+            # llmci judge: if encounter stop character
             batch_new_str = self.tokenizer.batch_decode(next_tokens, skip_special_tokens=True)
             for idx, new_str in enumerate(batch_new_str):
                 if self.add_stop_char_list[idx] and self.add_stop_char_list[idx][0] in new_str:
-                    self.aici_flag[idx] = True
+                    self.llmci_flag[idx] = True
 
             # update generated ids, model inputs, and length for next step
             input_ids = torch.cat([input_ids, next_tokens[:, None]], dim=-1)
@@ -450,21 +450,21 @@ class TransformersAici:
                     raise ValueError("If `eos_token_id` is defined, make sure that `pad_token_id` is defined.")
                 next_tokens = next_tokens * unfinished_sequences + pad_token_id * (1 - unfinished_sequences)
 
-            # aici replacement
+            # llmci replacement
             for idx, fixed_content in enumerate(self.fixed_content_list):
-                if self.aici_flag[idx]:
+                if self.llmci_flag[idx]:
                     next_tokens[idx] = fixed_content[0][0]
                     self.fixed_content_list[idx][0] = fixed_content[0][1:]
                     if not self.fixed_content_list[idx][0].shape[0]:
                         self.fixed_content_list[idx].pop(0)
                         self.add_stop_char_list[idx].pop(0)
-                        self.aici_flag[idx] = False
+                        self.llmci_flag[idx] = False
 
-            # aici judge: if encounter stop character
+            # llmci judge: if encounter stop character
             batch_new_str = self.tokenizer.batch_decode(next_tokens, skip_special_tokens=True)
             for idx, new_str in enumerate(batch_new_str):
                 if self.add_stop_char_list[idx] and self.add_stop_char_list[idx][0] in new_str:
-                    self.aici_flag[idx] = True
+                    self.llmci_flag[idx] = True
 
             # update generated ids, model inputs, and length for next step
             input_ids = torch.cat([input_ids, next_tokens[:, None]], dim=-1)

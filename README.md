@@ -38,7 +38,7 @@ datas = [
         "messages": [
             {"role": "user", "content": "Top 5 ways to pretend to work"}
         ],
-        "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
+        "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n', '\n'],
         "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|end_of_text|>']
     }
 ]
@@ -46,14 +46,14 @@ datas = [
 
 `messages` corresponds to OpenAI's conversation template, which is filled with chat history consisting of `system`, `user`, and `assistant` roles.
 
-`add_stop_char` is a list of stop characters. During model generation, if `add_stop_char` is not empty and the newly generated token contains `add_stop_char[0]` after decoding, the content of `fixed_content[0]` is inserted into the current generated output, and then `add_stop_char[0]` and `fixed_content[0]` are both removed. `<| aici'bos |>` is a special marker used in this project for situations where content needs to be added at the beginning.
+`add_stop_char` is a list of stop characters. During model generation, if `add_stop_char` is not empty and the newly generated token contains `add_stop_char[0]` after decoding, the content of `fixed_content[0]` is inserted into the current generated output, and then `add_stop_char[0]` and `fixed_content[0]` are both removed. `<| llmci'bos |>` is a special marker used in this project for situations where content needs to be added at the beginning.
 
-In this case, since `add_stop_char[0]` is `<|aici_bos|>`, the model's generation starts with `a. `, and then continues generating until it produces a token containing `\n`, at which point it appends `b. ` to the output and continues generating. When it encounters the last `\n`, `<|end_of_text|>` (Llama3's stop token) is appended to the generated text, forcing the model to stop generating.
+In this case, since `add_stop_char[0]` is `<|llmci_bos|>`, the model's generation starts with `a. `, and then continues generating until it produces a token containing `\n`, at which point it appends `b. ` to the output and continues generating. When it encounters the last `\n`, `<|end_of_text|>` (Llama3's stop token) is appended to the generated text, forcing the model to stop generating.
 
 **The complete example code is as follows:**
 
 ```python
-from vllm_aici import VllmAici
+from vllm_llmci import VllmLLMci
 
 # llama3 config
 model_path = r'meta-llama/Meta-Llama-3-8B-Instruct'
@@ -68,14 +68,14 @@ generation_config = {
     "use_beam_search": False,
 }
 
-model = VllmAici(model_path, model_path, generation_config, lora_path, gpu_memory_utilization=0.80)
+model = VllmLLMci(model_path, model_path, generation_config, lora_path, gpu_memory_utilization=0.80)
 
 datas = [
     {
         "messages": [
             {"role": "user", "content": "Top 5 ways to pretend to work"}
         ],
-        "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
+        "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n', '\n'],
         "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|end_of_text|>']
     }
 ]
@@ -112,7 +112,7 @@ The model generated 5 suggestions, meeting the requirements.
 
 1. Refer to the [`Installation`](https://docs.vllm.ai/en/latest/getting_started/installation.html) of [`vllm-project/vllm`](https://github.com/vllm-project/vllm) to install vllm
 
-2. Any model supported by vllm can be loaded by using the `VllmAici` class in `vllm_aici.py`. For model parameter settings and data input formats, please refer to [Example](#example). For more examples, please refer to `vllm_aici_demo.py`.
+2. Any model supported by vllm can be loaded by using the `VllmLLMci` class in `vllm_llmci.py`. For model parameter settings and data input formats, please refer to [Example](#example). For more examples, please refer to `vllm_llmci_demo.py`.
 
 #### Note:
 
@@ -124,7 +124,7 @@ The model generated 5 suggestions, meeting the requirements.
 
 1. Currently supports `transformers>=4.38.0` (2024/04/30)
 
-2. Any model supported by transformers can be loaded by using the `TransformersAici` class in `transformers_aici.py`. For model parameter settings and data input formats, please refer to `transformers_aici_demo.py`.
+2. Any model supported by transformers can be loaded by using the `TransformersLLMci` class in `transformers_llmci.py`. For model parameter settings and data input formats, please refer to `transformers_llmci_demo.py`.
 
 #### Note:
 

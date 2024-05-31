@@ -27,7 +27,7 @@ import argparse
 app = FastAPI()
 
 
-class AsyncVllmAici:
+class AsyncVllmLLMci:
     def __init__(self,
                  llm_engine: AsyncLLMEngine,
                  tokenizers_path: str,
@@ -43,7 +43,7 @@ class AsyncVllmAici:
 
         self.add_stop_char_dict = {}
         self.fixed_content_dict = {}
-        self.aici_flag = {}
+        self.llmci_flag = {}
 
         self.wait_list = []
 
@@ -91,24 +91,24 @@ class AsyncVllmAici:
             add_generation_prompt=True
         )
 
-        # Check aici input in data
+        # Check llmci input in data
         data['add_stop_char'] = data['add_stop_char'] if 'add_stop_char' in data else []
         data['fixed_content'] = data['fixed_content'] if 'fixed_content' in data else []
         assert isinstance(data['add_stop_char'], list) and isinstance(data['fixed_content'], list), "`add_stop_char` and `fixed_content` must in list type"
         assert len(data['add_stop_char']) == len(data['fixed_content']), "len of `add_stop_char` and `fixed_content` are not equal"
 
         # In case that add tokens at beggining
-        outputs_aici_bos = ""  # this is for tokens that add to the beginning
-        if data['add_stop_char'] and data['add_stop_char'][0] == '<|aici_bos|>':
+        outputs_llmci_bos = ""  # this is for tokens that add to the beginning
+        if data['add_stop_char'] and data['add_stop_char'][0] == '<|llmci_bos|>':
             text += data['fixed_content'][0]
-            outputs_aici_bos += data['fixed_content'][0]
+            outputs_llmci_bos += data['fixed_content'][0]
             data['add_stop_char'].pop(0)
             data['fixed_content'].pop(0)
 
-        # Prepare aici dict
+        # Prepare llmci dict
         self.add_stop_char_dict[request_id] = data['add_stop_char']
         self.fixed_content_dict[request_id] = [self.tokenizer.encode(str_) for str_ in data['fixed_content']] if data['fixed_content'] else []
-        self.aici_flag[request_id] = False
+        self.llmci_flag[request_id] = False
 
         # Easy Concurrency control
         if hasattr(self.llm_engine, "_request_tracker"):
@@ -127,7 +127,7 @@ class AsyncVllmAici:
 
         async for request_output in results_generator:
             # prompt = request_output.prompt
-            text_outputs = [outputs_aici_bos + output.text for output in request_output.outputs]
+            text_outputs = [outputs_llmci_bos + output.text for output in request_output.outputs]
             text_outputs = " ".join(text_outputs)
 
             aborted = False
@@ -196,15 +196,15 @@ class AsyncVllmAici:
             for parent_seq in parent_seqs
         }
 
-        # aici judge: if encounter stop character
+        # llmci judge: if encounter stop character
         for parent in parent_seqs:
             if len(parent.data.output_token_ids):
                 output_str = self.tokenizer.decode(parent.data.output_token_ids[-1], skip_special_tokens=True)
                 if len(self.add_stop_char_dict[seq_group.request_id]) and self.add_stop_char_dict[seq_group.request_id][0] in output_str:
-                    self.aici_flag[seq_group.request_id] = True
+                    self.llmci_flag[seq_group.request_id] = True
 
         for sample in samples:
-            if self.aici_flag[seq_group.request_id]:
+            if self.llmci_flag[seq_group.request_id]:
                 sample.output_token = self.fixed_content_dict[seq_group.request_id][0][0]
                 new_logprob = Logprob(logprob=0.0, rank=1)
                 sample.logprobs = {sample.output_token: new_logprob}
@@ -213,7 +213,7 @@ class AsyncVllmAici:
                 if len(self.fixed_content_dict[seq_group.request_id][0]) == 0:
                     self.add_stop_char_dict[seq_group.request_id].pop(0)
                     self.fixed_content_dict[seq_group.request_id].pop(0)
-                    self.aici_flag[seq_group.request_id] = False
+                    self.llmci_flag[seq_group.request_id] = False
                 parent_child_dict[sample.parent_seq_id] = [sample]
             else:
                 parent_child_dict[sample.parent_seq_id].append(sample)
@@ -272,7 +272,7 @@ class AsyncVllmAici:
                     self.llm_engine.engine.output_processor.scheduler.free_seq(seq)
                     del self.add_stop_char_dict[seq_group.request_id]
                     del self.fixed_content_dict[seq_group.request_id]
-                    del self.aici_flag[seq_group.request_id]
+                    del self.llmci_flag[seq_group.request_id]
             return
         
         # Beam search case
@@ -364,7 +364,7 @@ if __name__ == "__main__":
 
     engine_args = AsyncEngineArgs.from_cli_args(args)
     engine = AsyncLLMEngine.from_engine_args(engine_args)
-    worker = AsyncVllmAici(
+    worker = AsyncVllmLLMci(
         engine,
         args.model_path,
         args.process_num,

@@ -1,4 +1,4 @@
-from vllm_aici import VllmAici
+from vllm_llmci import VllmLLMci
 import time
 
 # qwen-1.5 config
@@ -27,7 +27,7 @@ generation_config = {
 #     "use_beam_search": False,
 # }
 
-model = VllmAici(model_path, model_path, generation_config, lora_path, gpu_memory_utilization=0.90)
+model = VllmLLMci(model_path, model_path, generation_config, lora_path, gpu_memory_utilization=0.90)
 
 # Test data
 datas = [
@@ -42,7 +42,7 @@ datas = [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
-        "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
+        "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n', '\n'],
         "fixed_content": ['1. ', '2. ', '3. ', '4. ', '5. ', '<|im_end|>']
     },
     {
@@ -50,7 +50,7 @@ datas = [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
-        "add_stop_char": ['<|aici_bos|>'],
+        "add_stop_char": ['<|llmci_bos|>'],
         "fixed_content": ['这里是']
     },
     {
@@ -58,7 +58,7 @@ datas = [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
-        "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n'],
+        "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n'],
         "fixed_content": ['a. ', 'b. ', 'c. ', '4. ', '5. ']
     },
 ]

@@ -1,10 +1,10 @@
-from transformers_aici import TransformersAici
+from transformers_llmci import TransformersLLMci
 import time
 
 model_path = r'Qwen/Qwen1.5-14B-Chat-GPTQ-Int4'
 tokenizers_path = model_path
 
-model = TransformersAici(tokenizers_path, model_path, 512)
+model = TransformersLLMci(tokenizers_path, model_path, 512)
 
 # Test data
 datas = [
@@ -19,7 +19,7 @@ datas = [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
-        "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
+        "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n', '\n'],
         "fixed_content": ['1. ', '2. ', '3. ', '4. ', '5. ', '<|im_end|>']
     },
     {
@@ -27,7 +27,7 @@ datas = [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
-        "add_stop_char": ['<|aici_bos|>'],
+        "add_stop_char": ['<|llmci_bos|>'],
         "fixed_content": ['这里是']
     },
     {
@@ -35,7 +35,7 @@ datas = [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
-        "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n'],
+        "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n'],
         "fixed_content": ['a. ', 'b. ', 'c. ', '4. ', '5. ']
     },
 ]

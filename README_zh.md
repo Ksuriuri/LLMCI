@@ -37,7 +37,7 @@ datas = [
         "messages": [
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
-        "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
+        "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n', '\n'],
         "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|im_end|>']
     }
 ]
@@ -45,14 +45,14 @@ datas = [
 
 其中，`messages` 对标 OpenAI 的对话模板，填写由 `system`, `user`, `assistant` 组成的对话记录。  
 
-`add_stop_char` 为停止符列表。在模型生成过程中，当 `add_stop_char` 不为空时，若模型新生成的 token 经过解码后包含 `add_stop_char[0]`，则将 `fixed_content[0]` 中的内容填充到当前生成结果中，然后删除 `add_stop_char[0]` 与 `fixed_content[0]`。`<|aici_bos|>` 是本项目的一个特殊标记符，用作开头便要添加内容的情况。  
+`add_stop_char` 为停止符列表。在模型生成过程中，当 `add_stop_char` 不为空时，若模型新生成的 token 经过解码后包含 `add_stop_char[0]`，则将 `fixed_content[0]` 中的内容填充到当前生成结果中，然后删除 `add_stop_char[0]` 与 `fixed_content[0]`。`<|llmci_bos|>` 是本项目的一个特殊标记符，用作开头便要添加内容的情况。  
 
-在本案例中，由于 `add_stop_char[0]` 为 `<|aici_bos|>`，因此模型的生成以 `a. ` 开头，然后模型继续生成，直到生成了包含 `\n` 的 token，便会在生成结果中追加 `b. `，然后继续生成。当遇到最后一个 `\n` 时，在生成结果中追加 `<|im_end|>` (qwen系列的停止标识)，强迫模型结束生成。
+在本案例中，由于 `add_stop_char[0]` 为 `<|llmci_bos|>`，因此模型的生成以 `a. ` 开头，然后模型继续生成，直到生成了包含 `\n` 的 token，便会在生成结果中追加 `b. `，然后继续生成。当遇到最后一个 `\n` 时，在生成结果中追加 `<|im_end|>` (qwen系列的停止标识)，强迫模型结束生成。
 
 **完整示例代码如下:**
 
 ```python
-from vllm_aici import VllmAici
+from vllm_llmci import VllmLLMci
 
 # qwen-1.5 config
 model_path = r'Qwen/Qwen1.5-14B-Chat-GPTQ-Int4'
@@ -67,14 +67,14 @@ generation_config = {
     "use_beam_search": False,
 }
 
-model = VllmAici(model_path, model_path, generation_config, lora_path, gpu_memory_utilization=0.80)
+model = VllmLLMci(model_path, model_path, generation_config, lora_path, gpu_memory_utilization=0.80)
 
 datas = [
     {
         "messages": [
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
-        "add_stop_char": ['<|aici_bos|>', '\n', '\n', '\n', '\n', '\n'],
+        "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n', '\n'],
         "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|im_end|>']
     }
 ]
@@ -105,7 +105,7 @@ output tokens: 148
 
 1. 参考 [`vllm-project/vllm`](https://github.com/vllm-project/vllm) 的文档 [`Installation`](https://docs.vllm.ai/en/latest/getting_started/installation.html) 安装vllm   
 
-2. 使用 `vllm_aici.py` 中的 `VllmAici` 类即可加载 vllm 支持的任意模型，模型参数设置以及数据输入格式请参考 [示例](#示例) 。更多示例详见 `vllm_aici_demo.py`
+2. 使用 `vllm_llmci.py` 中的 `VllmLLMci` 类即可加载 vllm 支持的任意模型，模型参数设置以及数据输入格式请参考 [示例](#示例) 。更多示例详见 `vllm_llmci_demo.py`
 
 #### Note:
 
@@ -117,7 +117,7 @@ output tokens: 148
 
 1. 目前支持 `transformers>=4.38.0` 的版本 (2024/04/30)
 
-2. 使用 `transformers_aici.py` 中的 `TransformersAici` 类即可加载 transformers 支持的任意模型，模型参数设置以及数据输入格式详见 `transformers_aici_demo.py`
+2. 使用 `transformers_llmci.py` 中的 `TransformersLLMci` 类即可加载 transformers 支持的任意模型，模型参数设置以及数据输入格式详见 `transformers_llmci_demo.py`
 
 #### Note:
 
