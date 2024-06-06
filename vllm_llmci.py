@@ -121,7 +121,7 @@ class VllmLLMci:
         # llmci judge: if encounter stop character
         for parent in parent_seqs:
             if len(parent.data.output_token_ids):
-                output_str = self.tokenizer.decode(parent.data.output_token_ids[-1], skip_special_tokens=True)
+                output_str = self.tokenizer.decode([parent.data.output_token_ids[-1]], skip_special_tokens=True)
                 if len(self.add_stop_char_dict[str(parent.seq_id)]) and self.add_stop_char_dict[str(parent.seq_id)][0] in output_str:
                     self.llmci_flag[str(parent.seq_id)] = True
 

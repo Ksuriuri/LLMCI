@@ -276,7 +276,7 @@ class TransformersLLMci:
                         self.llmci_flag[idx] = False
 
             # llmci judge: if encounter stop character
-            batch_new_str = self.tokenizer.batch_decode(next_tokens, skip_special_tokens=True)
+            batch_new_str = self.tokenizer.batch_decode([next_tokens], skip_special_tokens=True)
             for idx, new_str in enumerate(batch_new_str):
                 if self.add_stop_char_list[idx] and self.add_stop_char_list[idx][0] in new_str:
                     self.llmci_flag[idx] = True
@@ -461,7 +461,7 @@ class TransformersLLMci:
                         self.llmci_flag[idx] = False
 
             # llmci judge: if encounter stop character
-            batch_new_str = self.tokenizer.batch_decode(next_tokens, skip_special_tokens=True)
+            batch_new_str = self.tokenizer.batch_decode([next_tokens], skip_special_tokens=True)
             for idx, new_str in enumerate(batch_new_str):
                 if self.add_stop_char_list[idx] and self.add_stop_char_list[idx][0] in new_str:
                     self.llmci_flag[idx] = True
