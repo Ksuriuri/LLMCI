@@ -107,7 +107,12 @@ class AsyncVllmLLMci:
 
         # Prepare llmci dict
         self.add_stop_char_dict[request_id] = data['add_stop_char']
-        self.fixed_content_dict[request_id] = [self.tokenizer.encode(str_) for str_ in data['fixed_content']] if data['fixed_content'] else []
+        # self.fixed_content_dict[request_id] = [self.tokenizer.encode(str_) for str_ in data['fixed_content']] if data['fixed_content'] else []
+        self.fixed_content_dict[request_id] = []
+        for str_ in data['fixed_content']:
+            if str_ == "<|llmci_eos|>" and self.tokenizer.eos_token is not None:
+                str_ = self.tokenizer.eos_token
+            self.fixed_content_dict[request_id].append(self.tokenizer.encode(str_))
         self.llmci_flag[request_id] = False
 
         # Easy Concurrency control

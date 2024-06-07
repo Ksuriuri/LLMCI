@@ -94,9 +94,15 @@ class TransformersLLMci:
 
             # Prepare llmci dict
             self.add_stop_char_list.append(data["add_stop_char"])
-            self.fixed_content_list.append(
-                [torch.tensor(self.tokenizer.encode(str_), dtype=torch.long, device=self.device) 
-                 for str_ in data["fixed_content"]] if data["fixed_content"] else [])
+            # self.fixed_content_list.append(
+            #     [torch.tensor(self.tokenizer.encode(str_), dtype=torch.long, device=self.device) 
+            #      for str_ in data["fixed_content"]] if data["fixed_content"] else [])
+            self.fixed_content = []
+            for str_ in data['fixed_content']:
+                if str_ == "<|llmci_eos|>" and self.tokenizer.eos_token is not None:
+                    str_ = self.tokenizer.eos_token
+                self.fixed_content.append(torch.tensor(self.tokenizer.encode(str_), dtype=torch.long, device=self.device))
+            self.fixed_content_list.append(self.fixed_content)
             self.llmci_flag.append(False)
 
         model_inputs = self.tokenizer(texts, return_tensors="pt", padding=True).to(self.device)

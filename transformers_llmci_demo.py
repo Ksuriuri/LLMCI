@@ -20,7 +20,7 @@ datas = [
             {"role": "user", "content": "请列举五个摸鱼方法"}
         ],
         "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n', '\n'],
-        "fixed_content": ['1. ', '2. ', '3. ', '4. ', '5. ', '<|im_end|>']
+        "fixed_content": ['1. ', '2. ', '3. ', '4. ', '5. ', '<|llmci_eos|>']
     },
     {
         "messages": [

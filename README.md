@@ -39,16 +39,16 @@ datas = [
             {"role": "user", "content": "Top 5 ways to pretend to work"}
         ],
         "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n', '\n'],
-        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|end_of_text|>']
+        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|llmci_eos|>']
     }
 ]
 ```
 
 `messages` corresponds to OpenAI's conversation template, which is filled with chat history consisting of `system`, `user`, and `assistant` roles.
 
-`add_stop_char` is a list of stop characters. During model generation, if `add_stop_char` is not empty and the newly generated token contains `add_stop_char[0]` after decoding, the content of `fixed_content[0]` is inserted into the current generated output, and then `add_stop_char[0]` and `fixed_content[0]` are both removed. `<| llmci'bos |>` is a special marker used in this project for situations where content needs to be added at the beginning.
+`add_stop_char` is a list of stop characters. During model generation, if `add_stop_char` is not empty and the newly generated token contains `add_stop_char[0]` after decoding, the content of `fixed_content[0]` is inserted into the current generated output, and then `add_stop_char[0]` and `fixed_content[0]` are both removed. `<| llmci_bos |>` is a special marker for situations where content needs to be added at the beginning, and the `<|llmci_eos|>` marker is used to indicate the end of the content.
 
-In this case, since `add_stop_char[0]` is `<|llmci_bos|>`, the model's generation starts with `a. `, and then continues generating until it produces a token containing `\n`, at which point it appends `b. ` to the output and continues generating. When it encounters the last `\n`, `<|end_of_text|>` (Llama3's stop token) is appended to the generated text, forcing the model to stop generating.
+In this case, since `add_stop_char[0]` is `<|llmci_bos|>`, the model's generation starts with `a. `, and then continues generating until it produces a token containing `\n`, at which point it appends `b. ` to the output and continues generating. When it encounters the last `\n`, `<|llmci_eos|>` will be automatically replaced to the `eos_token` of the model and appended to the generated text, forcing the model to stop generating.
 
 **The complete example code is as follows:**
 
@@ -76,7 +76,7 @@ datas = [
             {"role": "user", "content": "Top 5 ways to pretend to work"}
         ],
         "add_stop_char": ['<|llmci_bos|>', '\n', '\n', '\n', '\n', '\n'],
-        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|end_of_text|>']
+        "fixed_content": ['a. ', 'b. ', 'c. ', 'd. ', 'e. ', '<|llmci_eos|>']
     }
 ]
 

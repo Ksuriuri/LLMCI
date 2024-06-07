@@ -86,7 +86,12 @@ class VllmLLMci:
             # Therefore, using current seq_id + data index (idx) should correspond to Sequence.seq_id.
             str_idx = str(seq_id+idx)
             self.add_stop_char_dict[str_idx] = data['add_stop_char']
-            self.fixed_content_dict[str_idx] = [self.tokenizer.encode(str_) for str_ in data['fixed_content']] if data['fixed_content'] else []
+            # self.fixed_content_dict[str_idx] = [self.tokenizer.encode(str_) for str_ in data['fixed_content']] if data['fixed_content'] else []
+            self.fixed_content_dict[str_idx] = []
+            for str_ in data['fixed_content']:
+                if str_ == "<|llmci_eos|>" and self.tokenizer.eos_token is not None:
+                    str_ = self.tokenizer.eos_token
+                self.fixed_content_dict[str_idx].append(self.tokenizer.encode(str_))
             self.llmci_flag[str_idx] = False
 
         # Inference
